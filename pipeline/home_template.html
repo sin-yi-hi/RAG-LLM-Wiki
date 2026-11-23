@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG LLM Wiki 作業</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--ink:#1f2430;--muted:#5d6475;--line:#e3ddd2;--accent:#2f6fde;--warm:#e8743b;--green:#2e9d6a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,"Microsoft JhengHei",sans-serif;line-height:1.8}
+.top{max-width:1000px;margin:0 auto;padding:28px 16px 0}
+.links{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0 8px}
+@media (max-width:720px){.links{grid-template-columns:1fr}}
+.links a{display:block;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;text-decoration:none;color:var(--ink)}
+.links a:hover{border-color:var(--accent)}
+.links b{display:block;font-size:19px}
+.links span{font-size:14px;color:var(--muted)}
+main{max-width:1000px;margin:0 auto;padding:8px 16px 60px}
+article{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px clamp(16px,4vw,44px) 30px}
+article h1{font-size:clamp(24px,3.4vw,34px);line-height:1.35}
+article h2{margin-top:2em;padding:6px 12px;background:#eef3fd;border-left:6px solid var(--accent);border-radius:6px}
+article h3{margin-top:1.5em;color:#24408a}
+img{max-width:100%;border:1px solid var(--line);border-radius:10px;margin:6px 0}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto;font-size:15px}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:#f3efe8}
+td img{min-width:220px}
+blockquote{margin:0;padding:6px 14px;border-left:4px solid var(--warm);background:#fdf6f1;border-radius:6px}
+code{background:#f3efe8;padding:1px 5px;border-radius:5px;font-size:.92em}
+pre{background:#1f2430;color:#e9edf5;padding:14px;border-radius:10px;overflow:auto;font-size:13px;line-height:1.6}
+pre code{background:none;color:inherit;padding:0}
+hr{border:none;border-top:2px dashed var(--line);margin:2em 0}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="links">
+    <a href="wiki.html"><b>📚 LLM Wiki</b><span>7 篇來源、14 個概念頁，可搜尋</span></a>
+    <a href="slides/"><b>🎞️ 教學 HTML 簡報</b><span>RAG 是什麼？19 頁，← → 換頁</span></a>
+    <a href="#4-loop-graph-設計"><b>🔁 Loop / Graph 與反思</b><span>流程圖、檢查紀錄、v1 → v2</span></a>
+  </div>
+</div>
+<main><article id="doc"></article></main>
+<script>
+var MD = /*__MD__*/;
+var renderer = new marked.Renderer();
+var slug = function(t){ return t.toLowerCase().replace(/<[^>]+>/g,'').replace(/[^\w一-鿿]+/g,'-').replace(/^-|-$/g,''); };
+renderer.heading = function(text, level){ return '<h' + level + ' id="' + slug(text) + '">' + text + '</h' + level + '>'; };
+document.getElementById('doc').innerHTML = marked.parse(MD, {renderer: renderer});
+if (location.hash) { var el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
+</script>
+</body>
+</html>

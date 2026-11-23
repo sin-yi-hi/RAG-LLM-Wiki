@@ -1,0 +1,2 @@
+== Slide Check：index.html，共 19 頁 ==
+結果：0 個錯誤、0 個警告 → PASS

@@ -1,0 +1,10 @@
+== Wiki Lint：檢查 14 頁、7 個來源 ==
+ERROR   [contextual-retrieval:9] 有數字 ['2023'] 但沒有附來源 [S#] → - 例：「這段出自 ACME 公司 2023 年 Q2 財報…」
+ERROR   [contextual-retrieval:12] 有數字 ['20'] 但沒有附來源 [S#] → ## 效果（前 20 個片段的檢索失敗率）
+ERROR   [contextual-retrieval:15] 有數字 ['5.7'] 但沒有附來源 [S#] → | 一般做法 | 5.7% | — |
+ERROR   [limitations-and-when-not:12] 有數字 ['82', '2016', '2018'] 但沒有附來源 [S#] → - 準備 82 位在 2016 到 2018 年間換人的世界領袖，問「誰是某某職位？」
+ERROR   [limitations-and-when-not:13] 有數字 ['2016', '2016', '70', '2018', '2018', '68'] 但沒有附來源 [S#] → - 用 2016 年索引問 2016 年領袖：答對 70%；用 2018 年索引問 2018 年領袖：答對 68%。
+ERROR   [limitations-and-when-not:14] 有數字 ['12', '4'] 但沒有附來源 [S#] → - 索引年份不對時：只答對 12% 和 4%。
+ERROR   [llm-limitations] 內文引用 S4，但 frontmatter sources 沒列
+ERROR   [llm-limitations] 內文引用 S7，但 frontmatter sources 沒列
+結果：8 個錯誤、0 個警告 → FAIL

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 580" width="1200" height="580" font-family="'Microsoft JhengHei','Noto Sans TC',sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b4f5c"/>
+    </marker>
+    <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d04545"/>
+    </marker>
+    <marker id="arG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e9d6a"/>
+    </marker>
+    <style>
+      .p rect{fill:#e6eefc;stroke:#2f6fde;stroke-width:2}
+      .c rect{fill:#fdeee6;stroke:#e8743b;stroke-width:2}
+      .t{font-size:17px;font-weight:700;fill:#1f2430;text-anchor:middle}
+      .s{font-size:12.5px;fill:#5d6475;text-anchor:middle}
+      .fw{stroke:#4b4f5c;stroke-width:2;fill:none;marker-end:url(#ar)}
+      .lp{stroke:#d04545;stroke-width:2;fill:none;marker-end:url(#arR)}
+      .fb{stroke:#2e9d6a;stroke-width:2;fill:none;stroke-dasharray:6 5;marker-end:url(#arG)}
+      .lr{font-size:12.5px;fill:#d04545;text-anchor:middle;font-weight:700}
+      .lg{font-size:12.5px;fill:#2e9d6a;font-weight:700}
+      .ph{font-size:15px;font-weight:700;fill:#2f6fde}
+    </style>
+  </defs>
+  <rect width="1200" height="580" fill="#fbf9f5"/>
+
+  <text x="40" y="24" class="ph">階段一：建立 LLM Wiki（ingest loop）</text>
+  <text x="690" y="314" class="ph" text-anchor="middle">階段二：產生教學簡報（generation loop）</text>
+
+  <!-- Row 1 -->
+  <g class="p"><rect x="40" y="90" width="170" height="64" rx="12"/></g>
+  <text x="125" y="117" class="t">A 取得資料</text><text x="125" y="139" class="s">web-fetch 7 篇來源</text>
+  <g class="c"><rect x="275" y="90" width="170" height="64" rx="12"/></g>
+  <text x="360" y="117" class="t">B 來源查證</text><text x="360" y="139" class="s">有沒有截斷？數字逐字確認？</text>
+  <g class="p"><rect x="510" y="90" width="170" height="64" rx="12"/></g>
+  <text x="595" y="117" class="t">C 先討論</text><text x="595" y="139" class="s">重點 / 衝突 / 要改哪幾頁</text>
+  <g class="p"><rect x="745" y="90" width="170" height="64" rx="12"/></g>
+  <text x="830" y="117" class="t">D 寫 Wiki 頁面</text><text x="830" y="139" class="s">raw → pages + index + log</text>
+  <g class="c"><rect x="980" y="90" width="170" height="64" rx="12"/></g>
+  <text x="1065" y="117" class="t">E Wiki 檢查</text><text x="1065" y="139" class="s">lint_wiki.py</text>
+
+  <path class="fw" d="M210 122 H273"/>
+  <path class="fw" d="M445 122 H508"/>
+  <path class="fw" d="M680 122 H743"/>
+  <path class="fw" d="M915 122 H978"/>
+
+  <path class="lp" d="M360 90 C360 42, 125 42, 125 88"/>
+  <text x="242" y="52" class="lr">FAIL：被截斷 / 只有 AI 摘要 → 改抓 PDF 重讀</text>
+  <path class="lp" d="M1065 90 C1065 42, 830 42, 830 88"/>
+  <text x="947" y="52" class="lr">FAIL：缺出處 / 數字對不上來源</text>
+
+  <!-- E -> F -->
+  <path class="fw" d="M1065 154 V250 H110 V328"/>
+  <text x="1075" y="205" font-size="13" font-weight="700" fill="#4b4f5c">PASS</text>
+
+  <!-- Row 2 -->
+  <g class="p"><rect x="30" y="330" width="160" height="64" rx="12"/></g>
+  <text x="110" y="357" class="t">F 查詢 Wiki</text><text x="110" y="379" class="s">依 3 個學習目標查 index</text>
+  <g class="p"><rect x="225" y="330" width="160" height="64" rx="12" stroke-dasharray="0"/></g>
+  <text x="305" y="357" class="t">G 寫大綱</text><text x="305" y="379" class="s">每頁 wiki·數字·術語</text>
+  <g class="c"><rect x="420" y="330" width="160" height="64" rx="12"/></g>
+  <text x="500" y="357" class="t">H 大綱檢查</text><text x="500" y="379" class="s">check_outline.py</text>
+  <g class="p"><rect x="615" y="330" width="160" height="64" rx="12"/></g>
+  <text x="695" y="357" class="t">I 產生 HTML</text><text x="695" y="379" class="s">slides/index.html</text>
+  <g class="c"><rect x="810" y="330" width="160" height="64" rx="12"/></g>
+  <text x="890" y="357" class="t">J 簡報檢查</text><text x="890" y="379" class="s">check_slides.py</text>
+  <g class="p"><rect x="1005" y="330" width="160" height="64" rx="12"/></g>
+  <text x="1085" y="357" class="t">K 發布 + 紀錄</text><text x="1085" y="379" class="s">人工瀏覽、寫 log</text>
+
+  <!-- v2 badges -->
+  <rect x="325" y="320" width="62" height="20" rx="10" fill="#2e9d6a"/><text x="356" y="334" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">v2 新增</text>
+  <rect x="520" y="320" width="62" height="20" rx="10" fill="#2e9d6a"/><text x="551" y="334" font-size="12" fill="#fff" text-anchor="middle" font-weight="700">v2 新增</text>
+
+  <path class="fw" d="M190 362 H223"/>
+  <path class="fw" d="M385 362 H418"/>
+  <path class="fw" d="M580 362 H613"/>
+  <path class="fw" d="M775 362 H808"/>
+  <path class="fw" d="M970 362 H1003"/>
+
+  <path class="lp" d="M500 394 C500 446, 305 446, 305 396"/>
+  <text x="402" y="462" class="lr">FAIL：數字不在 Wiki / 術語太晚介紹</text>
+  <path class="lp" d="M890 394 C890 446, 695 446, 695 396"/>
+  <text x="792" y="462" class="lr">FAIL：小問題 → 只重寫那一頁（最多 3 次）</text>
+  <path class="lp" d="M880 394 C880 530, 290 530, 290 396"/>
+  <text x="585" y="522" class="lr">FAIL：順序 / 結構問題 → 回到大綱重排</text>
+
+  <!-- feedback (dashed) -->
+  <path class="fb" d="M55 330 V200 Q55 180 75 180 H95 V156"/>
+  <text x="120" y="300" class="lg">Wiki 資料不夠 → 回頭補 ingest</text>
+  <path class="fb" d="M1120 330 V285 H860 V156"/>
+  <text x="870" y="280" class="lg">好的問答回存 Wiki</text>
+
+  <!-- legend -->
+  <g transform="translate(40,552)">
+    <rect width="22" height="14" rx="3" fill="#e6eefc" stroke="#2f6fde" stroke-width="2"/><text x="30" y="12" font-size="13" fill="#1f2430">處理節點</text>
+    <rect x="110" width="22" height="14" rx="3" fill="#fdeee6" stroke="#e8743b" stroke-width="2"/><text x="140" y="12" font-size="13" fill="#1f2430">檢查節點（會擋下來）</text>
+    <line x1="300" y1="7" x2="330" y2="7" stroke="#d04545" stroke-width="2"/><text x="338" y="12" font-size="13" fill="#1f2430">檢查失敗 → 重做（loop）</text>
+    <line x1="510" y1="7" x2="540" y2="7" stroke="#2e9d6a" stroke-width="2" stroke-dasharray="6 5"/><text x="548" y="12" font-size="13" fill="#1f2430">偶爾觸發的回饋</text>
+  </g>
+</svg>

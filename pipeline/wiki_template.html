@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG LLM Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+:root{--bg:#f6f3ee;--side:#ece6db;--card:#fff;--ink:#1f2430;--muted:#5d6475;--line:#e3ddd2;--accent:#2f6fde;--warm:#e8743b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,"Microsoft JhengHei",sans-serif;line-height:1.75}
+.wrap{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+aside{background:var(--side);padding:20px 16px;position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--line)}
+aside h1{font-size:20px;margin:0 0 4px}
+aside .sub{font-size:13px;color:var(--muted);margin-bottom:12px}
+aside input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;margin-bottom:10px}
+aside h4{margin:14px 0 4px;font-size:13px;color:var(--muted)}
+aside a{display:block;padding:3px 8px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:14px}
+aside a:hover{background:#fff}
+aside a.on{background:var(--accent);color:#fff}
+main{padding:28px clamp(16px,4vw,56px);max-width:960px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.meta span{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--muted)}
+article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px clamp(16px,3vw,36px)}
+article h1{font-size:28px;margin-top:0}
+article h2{border-bottom:2px solid var(--line);padding-bottom:4px}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:#f3efe8}
+blockquote{margin:0;padding:6px 14px;border-left:4px solid var(--warm);background:#fdf6f1}
+code,pre{background:#f3efe8;border-radius:6px}
+pre{padding:10px;overflow:auto}
+a.wl{color:var(--accent);font-weight:700}
+a.src{display:inline-block;font-size:12px;padding:0 6px;border-radius:5px;background:#ece6db;color:#4b4f5c;text-decoration:none;font-weight:700}
+@media (max-width:760px){.wrap{grid-template-columns:1fr}aside{position:static;height:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <h1>📚 RAG LLM Wiki</h1>
+    <div class="sub">主題：檢索增強生成｜7 篇來源｜14 個頁面</div>
+    <input id="q" placeholder="搜尋頁面內容…">
+    <nav id="nav"></nav>
+  </aside>
+  <main>
+    <div class="meta" id="meta"></div>
+    <article id="doc"></article>
+  </main>
+</div>
+<script>
+var DATA = /*__DOCS__*/;
+var rawKey = {};
+DATA.order.forEach(function(k){ var m = k.match(/^(S\d)-/); if (m) rawKey[m[1]] = k; });
+
+function splitFM(md){
+  var m = md.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!m) return {fm:{}, body:md};
+  var fm = {};
+  m[1].split('\n').forEach(function(l){ var i = l.indexOf(':'); if (i > 0) fm[l.slice(0,i).trim()] = l.slice(i+1).trim(); });
+  return {fm:fm, body:m[2]};
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function render(key){
+  if (!DATA.docs[key]) key = 'index';
+  var d = splitFM(DATA.docs[key].md);
+  var body = d.body
+    .replace(/\[\[([^\]]+)\]\]/g, function(_, k){ return '<a class="wl" href="#' + k + '">' + k + '</a>'; })
+    .replace(/\[(S\d)\]/g, function(_, s){ return '<a class="src" href="#' + (rawKey[s] || '') + '">' + s + '</a>'; });
+  document.getElementById('doc').innerHTML = marked.parse(body);
+  var meta = '';
+  ['sources','updated','type','dates','url'].forEach(function(f){ if (d.fm[f]) meta += '<span>' + f + '：' + esc(d.fm[f]) + '</span>'; });
+  document.getElementById('meta').innerHTML = meta;
+  document.querySelectorAll('#nav a').forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === '#' + key); });
+  window.scrollTo(0, 0);
+}
+function buildNav(filter){
+  var html = '', group = null;
+  DATA.order.forEach(function(k){
+    var doc = DATA.docs[k];
+    if (filter && doc.md.toLowerCase().indexOf(filter.toLowerCase()) < 0) return;
+    if (doc.group !== group){ group = doc.group; html += '<h4>' + group + '</h4>'; }
+    var t = splitFM(doc.md).fm.title || k;
+    html += '<a href="#' + k + '">' + esc(t.replace(/^"|"$/g, '')) + '</a>';
+  });
+  document.getElementById('nav').innerHTML = html || '<div class="sub">找不到</div>';
+}
+document.getElementById('q').addEventListener('input', function(e){ buildNav(e.target.value); });
+window.addEventListener('hashchange', function(){ render(decodeURIComponent(location.hash.slice(1))); });
+buildNav('');
+render(decodeURIComponent(location.hash.slice(1)) || 'index');
+</script>
+</body>
+</html>

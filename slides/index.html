@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG 是什麼？讓 AI 先查資料再回答</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ee; --card:#ffffff; --ink:#1f2430; --muted:#5d6475; --line:#e3ddd2;
+  --accent:#2f6fde; --accent-soft:#e6eefc; --warm:#e8743b; --warm-soft:#fdeee6;
+  --green:#2e9d6a; --green-soft:#e4f5ec; --red:#d04545; --red-soft:#fbe7e7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans TC",system-ui,-apple-system,"Microsoft JhengHei",sans-serif;}
+.deck{position:relative;height:100%;overflow:hidden}
+.slide{position:absolute;inset:0;display:none;padding:clamp(20px,4vw,56px) clamp(16px,6vw,96px) 90px;
+  overflow-y:auto}
+.slide.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.inner{max-width:1080px;margin:0 auto}
+h1{font-size:clamp(30px,5vw,56px);font-weight:900;margin:.2em 0;line-height:1.2}
+h2{font-size:clamp(24px,3.4vw,40px);font-weight:900;margin:0 0 .6em;line-height:1.25}
+h2 .num{display:inline-block;background:var(--accent);color:#fff;border-radius:10px;
+  padding:0 .4em;margin-right:.35em;font-size:.8em;vertical-align:.08em}
+p,li,td,th{font-size:clamp(16px,1.9vw,22px);line-height:1.7}
+.lead{font-size:clamp(18px,2.3vw,26px);color:var(--muted)}
+ul{padding-left:1.2em;margin:.4em 0}
+li{margin:.25em 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:760px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  box-shadow:0 2px 0 rgba(0,0,0,.03)}
+.card h3{margin:.1em 0 .4em;font-size:clamp(18px,2.1vw,24px)}
+.card.blue{background:var(--accent-soft);border-color:#c9d8f6}
+.card.warm{background:var(--warm-soft);border-color:#f6cdb7}
+.card.green{background:var(--green-soft);border-color:#bfe4d0}
+.card.red{background:var(--red-soft);border-color:#f0c4c4}
+.big{font-size:clamp(34px,5vw,60px);font-weight:900;line-height:1.1;margin:.15em 0}
+.card .big + p{margin-top:0}
+.tag{display:inline-block;font-size:14px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:700}
+dfn{font-style:normal;font-weight:700;border-bottom:2px dotted var(--warm)}
+table{border-collapse:collapse;width:100%;background:var(--card);border-radius:12px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:#f0ebe2}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.flow .step{flex:1 1 160px;background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:14px;text-align:center}
+.flow .step b{display:block;font-size:clamp(18px,2.2vw,26px);color:var(--accent)}
+.flow .arrow{align-self:center;font-size:28px;color:var(--accent)}
+@media (max-width:760px){.flow .arrow{transform:rotate(90deg);width:100%;text-align:center}}
+.chat{max-width:760px}
+.bubble{padding:12px 16px;border-radius:16px;margin:10px 0;font-size:clamp(16px,1.9vw,21px)}
+.bubble.user{background:var(--accent);color:#fff;margin-left:20%;border-bottom-right-radius:4px}
+.bubble.bot{background:var(--card);border:1px solid var(--line);margin-right:20%;border-bottom-left-radius:4px}
+.bubble.bad{border-color:var(--red);background:var(--red-soft)}
+.quiz .q{margin:14px 0}
+.quiz button{font:inherit;font-size:16px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 14px;cursor:pointer}
+.quiz .ans{display:none;margin-top:6px;color:var(--green);font-weight:700}
+.quiz .q.show .ans{display:block}
+.cite{position:absolute;left:0;right:0;bottom:56px;text-align:center;font-size:13px;color:var(--muted)}
+.cite .src{display:inline-block;margin:0 2px;padding:0 7px;border-radius:6px;background:#ece6db;color:#4b4f5c;font-weight:700}
+.notes{display:none}
+body.show-notes .slide.active .notes{display:block;position:fixed;right:16px;bottom:100px;max-width:380px;
+  background:#1f2430;color:#fff;padding:14px 16px;border-radius:12px;font-size:15px;line-height:1.6;z-index:5}
+.bar{position:fixed;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;justify-content:center;gap:14px;
+  background:rgba(246,243,238,.92);border-top:1px solid var(--line);z-index:4}
+.bar button{font:inherit;font-size:15px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 14px;cursor:pointer}
+.bar .count{font-variant-numeric:tabular-nums;color:var(--muted);min-width:70px;text-align:center}
+.progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);transition:width .3s;z-index:4}
+.cover{display:flex;flex-direction:column;justify-content:center;min-height:70vh}
+.small{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main class="deck" id="deck">
+
+<!-- 1 封面 -->
+<section class="slide" data-type="cover" data-wiki="index,rag-definition">
+  <div class="inner cover">
+    <span class="tag">生成式 AI 教學簡報</span>
+    <h1>RAG 是什麼？<br>讓 AI 先查資料、再回答</h1>
+    <p class="lead">檢索增強生成（Retrieval-Augmented Generation）入門</p>
+    <p class="small">本簡報內容全部來自我的「RAG LLM Wiki」，每頁下方標示 Wiki 頁面與原始來源編號 S1–S7。<br>操作：← → 換頁｜N 顯示講者備註</p>
+  </div>
+  <aside class="notes">開場：今天想讓大家知道，為什麼 ChatGPT 這類 AI 有時候會亂講，以及業界最常用來改善它的方法 RAG。</aside>
+</section>
+
+<!-- 2 學習目標 -->
+<section class="slide" data-type="goals" data-wiki="index">
+  <div class="inner">
+    <h2>今天的學習目標</h2>
+    <div class="grid3">
+      <div class="card blue"><h3>① 說得出來</h3><p>用一句話說明 RAG 是什麼、為什麼需要它</p></div>
+      <div class="card warm"><h3>② 畫得出來</h3><p>畫出 RAG 的四個步驟：建索引 → 檢索 → 增強 → 生成</p></div>
+      <div class="card green"><h3>③ 判斷得出來</h3><p>知道 RAG 的限制，以及什麼時候用 RAG、什麼時候不用</p></div>
+    </div>
+  </div>
+  <aside class="notes">先讓聽眾知道今天結束後要會什麼，最後的小測驗會對應這三個目標。</aside>
+</section>
+
+<!-- 3 先想一想 -->
+<section class="slide" data-type="content" data-wiki="llm-limitations">
+  <div class="inner">
+    <h2>先想一想：AI 這樣回答，對嗎？</h2>
+    <div class="chat">
+      <div class="bubble user">我想請產假，可以請多久？</div>
+      <div class="bubble bot bad">想請多久就請多久喔！😊</div>
+    </div>
+    <p>❌ 這是 IBM 提到的真實例子。產假規定<b>每個國家、每個州都不一樣</b>，AI 卻很有自信地給了錯誤答案。</p>
+    <p class="small">📌 <dfn>LLM（大型語言模型）</dfn>：像 ChatGPT 這種用大量文字訓練、會寫文字的 AI。</p>
+    <p>👉 比較好的做法：說「我不確定」，或先追問你在哪裡工作。</p>
+  </div>
+  <div class="cite">Wiki：llm-limitations｜來源 <span class="src">S3</span></div>
+  <aside class="notes">可以先問台下：你覺得 AI 為什麼會這樣回答？讓大家猜一下再翻下一頁。</aside>
+</section>
+
+<!-- 4 LLM 的問題 -->
+<section class="slide" data-type="content" data-wiki="llm-limitations">
+  <div class="inner">
+    <h2>沒有 RAG 的 LLM，有三個大問題</h2>
+    <div class="grid3">
+      <div class="card red"><h3>📅 知識會過期</h3><p>訓練資料是靜態的，有「知識截止日」，之後的事它不知道。</p></div>
+      <div class="card red"><h3>🌀 會一本正經地亂講</h3><p>不知道答案時，可能產生看似合理但錯誤的內容，叫做<dfn>幻覺（hallucination）</dfn>。</p></div>
+      <div class="card red"><h3>❓ 說不出依據</h3><p>答案從哪裡來？模型很難說明，使用者也無法查證。</p></div>
+    </div>
+    <p>另外，它也<b>沒看過你公司的內部文件</b>；想更新知識，就得重新訓練，很花錢。</p>
+  </div>
+  <div class="cite">Wiki：llm-limitations｜來源 <span class="src">S1</span><span class="src">S2</span><span class="src">S3</span></div>
+  <aside class="notes">AWS 列了 4 個常見問題，這裡為了好記整理成 3 類。</aside>
+</section>
+
+<!-- 5 比喻 -->
+<section class="slide" data-type="content" data-wiki="analogies">
+  <div class="inner">
+    <h2>用比喻理解 RAG</h2>
+    <div class="grid2">
+      <div class="card blue"><h3>📖 閉卷考 → 開書考</h3><p>沒有 RAG：只能靠背下來的東西作答。<br>有 RAG：可以先翻書找到答案，再寫答案。</p><p class="small">— IBM 的比喻</p></div>
+      <div class="card warm"><h3>⚖️ 法官與書記官</h3><p>法官（LLM）懂一般法律，遇到特殊案件，請書記官（RAG）去圖書館找判例。<b>寫判決的還是法官。</b></p><p class="small">— NVIDIA 的比喻</p></div>
+    </div>
+  </div>
+  <div class="cite">Wiki：analogies｜來源 <span class="src">S3</span><span class="src">S4</span></div>
+  <aside class="notes">強調：RAG 不是取代 LLM，而是幫 LLM 找資料。</aside>
+</section>
+
+<!-- 6 定義 -->
+<section class="slide" data-type="content" data-wiki="rag-definition,history-and-name">
+  <div class="inner">
+    <h2>所以，RAG 是什麼？</h2>
+    <div class="card blue"><p class="big">先「檢索」，再「生成」</p>
+    <p><dfn>RAG（檢索增強生成）</dfn>：讓大型語言模型在回答之前，先到外部資料庫找相關內容，再根據找到的內容回答。</p></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><h3>🧠 參數記憶</h3><p>模型自己記住的知識（存在權重裡）</p></div>
+      <div class="card"><h3>📚 非參數記憶</h3><p>外部資料庫，換掉就能更新知識</p></div>
+    </div>
+    <p class="small">小故事：RAG 這個名字來自 2020 年 Patrick Lewis 等人的論文。他後來說，早知道會這麼紅，就會取個好聽一點的名字 😂</p>
+  </div>
+  <div class="cite">Wiki：rag-definition、history-and-name｜來源 <span class="src">S1</span><span class="src">S2</span><span class="src">S4</span></div>
+  <aside class="notes">原始論文用的外部資料庫是 Wikipedia，切成 2100 萬份文件。</aside>
+</section>
+
+<!-- 7 四步驟 -->
+<section class="slide" data-type="content" data-wiki="rag-pipeline">
+  <div class="inner">
+    <h2>RAG 的四個步驟</h2>
+    <div class="flow">
+      <div class="step"><b>① 建索引</b>文件<dfn>切片</dfn>（切成小段），轉成<dfn>向量</dfn>（一串數字），存進資料庫</div>
+      <div class="arrow">➜</div>
+      <div class="step"><b>② 檢索</b>把問題也轉成向量，找最相似的前 K 段</div>
+      <div class="arrow">➜</div>
+      <div class="step"><b>③ 增強</b>把找到的片段 + 問題，組成新的<dfn>提示</dfn>（交給 LLM 的問題與指令）</div>
+      <div class="arrow">➜</div>
+      <div class="step"><b>④ 生成</b>LLM 根據資料寫答案，並附上來源</div>
+    </div>
+    <p>🔄 資料會變，所以知識庫要<b>定期更新</b>。</p>
+    <p class="small">不同來源切法不同（AWS 4 步、Gao 綜述 3 步、IBM 2 階段），但核心都是「先找再寫」。</p>
+  </div>
+  <div class="cite">Wiki：rag-pipeline｜來源 <span class="src">S2</span><span class="src">S3</span><span class="src">S4</span><span class="src">S6</span></div>
+  <aside class="notes">①是事前準備（離線做一次），②③④是每次有人發問時才跑。</aside>
+</section>
+
+<!-- 8 切片與向量 -->
+<section class="slide" data-type="content" data-wiki="chunking-and-embedding">
+  <div class="inner">
+    <h2>步驟①：為什麼要切片？什麼是向量？</h2>
+    <div class="grid2">
+      <div class="card"><h3>✂️ 切片 chunk</h3><p>LLM 一次能讀的 <dfn>token</dfn>（模型處理文字的基本單位）數量有限，不能把所有文件塞進去，所以把長文件切成幾百個 token 以內的小片段。</p><p class="small">例：RAG 論文把 Wikipedia 切成 100 字一段。</p></div>
+      <div class="card"><h3>🔢 向量 embedding</h3><p>把一段文字變成一串數字。意思相近的文字，數字也會很接近 → 可以用「距離」找出最相關的片段。</p><p class="small">問題和片段要用同一個模型轉換。</p></div>
+    </div>
+  </div>
+  <div class="cite">Wiki：chunking-and-embedding｜來源 <span class="src">S1</span><span class="src">S2</span><span class="src">S5</span><span class="src">S6</span><span class="src">S7</span></div>
+  <aside class="notes">可以比喻成：把一本書拆成很多張便利貼，每張便利貼都貼上一個「意思座標」。</aside>
+</section>
+
+<!-- 9 檢索方法 -->
+<section class="slide" data-type="content" data-wiki="retrieval-methods">
+  <div class="inner">
+    <h2>步驟②：怎麼「找」資料？</h2>
+    <table>
+      <tr><th>方法</th><th>原理</th><th>擅長</th></tr>
+      <tr><td>關鍵字搜尋（<dfn>BM25</dfn>）</td><td>比對完全相同的字</td><td>錯誤代碼、專有名詞</td></tr>
+      <tr><td>向量搜尋</td><td>比對意思是否接近</td><td>換句話說、同義詞</td></tr>
+      <tr><td>混合搜尋</td><td>兩種一起查再合併</td><td>兼顧兩者</td></tr>
+    </table>
+    <p>🎯 <dfn>重新排序（reranking）</dfn>：先多撈一些（例如 150 段），再精挑最相關的 20 段給 LLM。</p>
+  </div>
+  <div class="cite">Wiki：retrieval-methods｜來源 <span class="src">S5</span><span class="src">S7</span></div>
+  <aside class="notes">例子：查「Error code TS-999」，向量搜尋可能找不到，關鍵字搜尋可以。</aside>
+</section>
+
+<!-- 10 走一遍 -->
+<section class="slide" data-type="content" data-wiki="rag-pipeline,use-cases">
+  <div class="inner">
+    <h2>走一遍：Alice 想請半天假</h2>
+    <div class="chat">
+      <div class="bubble user">我可以請半天假嗎？今年假還夠嗎？</div>
+    </div>
+    <div class="grid3">
+      <div class="card blue"><h3>② 檢索</h3><p>查 Alice 的人事資料（剩幾天假）＋公司請假規定（能不能請半天）</p></div>
+      <div class="card warm"><h3>③ 增強</h3><p>把兩份資料和 Alice 的問題放進同一個提示</p></div>
+      <div class="card green"><h3>④ 生成</h3><p>LLM 回答「可以 / 不行、還剩幾天」，並附上規定的連結</p></div>
+    </div>
+  </div>
+  <div class="cite">Wiki：rag-pipeline、use-cases｜來源 <span class="src">S3</span></div>
+  <aside class="notes">對照第 3 頁的產假例子：有了 RAG，AI 回答的是「這間公司、這個人」的真實狀況。</aside>
+</section>
+
+<!-- 11 Contextual Retrieval -->
+<section class="slide" data-type="content" data-wiki="contextual-retrieval">
+  <div class="inner">
+    <h2>進階：切片會「失去上下文」</h2>
+    <div class="grid2">
+      <div class="card red"><h3>😵 問題</h3><p>片段寫著「公司營收比上一季成長 3%」——哪家公司？哪一季？系統看不出來。</p></div>
+      <div class="card green"><h3>💡 解法：情境式檢索</h3><p>先讓 LLM 替每個片段加一句說明，例如「這段出自 ACME 公司 2023 年 Q2 財報」，再建索引。</p></div>
+    </div>
+    <table style="margin-top:14px">
+      <tr><th>做法</th><th>檢索失敗率降低</th></tr>
+      <tr><td>加情境的向量搜尋</td><td>35%</td></tr>
+      <tr><td>＋加情境的 BM25</td><td>49%</td></tr>
+      <tr><td>＋重新排序</td><td>67%</td></tr>
+    </table>
+    <p class="small">⚠ 這是「失敗率下降的比例」，不是準確率。</p>
+  </div>
+  <div class="cite">Wiki：contextual-retrieval｜來源 <span class="src">S5</span></div>
+  <aside class="notes">重點：RAG 好不好，很大部分取決於「找得準不準」。</aside>
+</section>
+
+<!-- 12 三代 RAG -->
+<section class="slide" data-type="content" data-wiki="rag-paradigms">
+  <div class="inner">
+    <h2>RAG 的三代演進</h2>
+    <div class="grid3">
+      <div class="card"><h3>1️⃣ Naive RAG</h3><p>索引 → 檢索 → 生成，一條直線。<br><span class="small">像查一次字典就作答</span></p></div>
+      <div class="card"><h3>2️⃣ Advanced RAG</h3><p>檢索前改寫問題、檢索後重新排序。<br><span class="small">先想好查什麼，查完再挑重點</span></p></div>
+      <div class="card"><h3>3️⃣ Modular RAG</h3><p>加入記憶、路由等模組，可以反覆檢索。<br><span class="small">像樂高，依任務組裝</span></p></div>
+    </div>
+    <p>🆕 最新發展：<b>代理式檢索</b>——讓 LLM 先把複雜問題拆成多個子問題，分頭去找。</p>
+  </div>
+  <div class="cite">Wiki：rag-paradigms｜來源 <span class="src">S6</span><span class="src">S7</span></div>
+  <aside class="notes">Naive RAG 的缺點：找不準、找不全、只查一次不夠。後兩代就是在解決這些問題。</aside>
+</section>
+
+<!-- 13 RAG vs 微調 -->
+<section class="slide" data-type="content" data-wiki="rag-vs-finetuning">
+  <div class="inner">
+    <h2>RAG、微調、提示工程，怎麼選？</h2>
+    <table>
+      <tr><th></th><th>提示工程</th><th>RAG</th><th>微調</th></tr>
+      <tr><td>做法</td><td>改寫指令</td><td>回答前先查資料</td><td>用新資料再訓練</td></tr>
+      <tr><td>知識更新</td><td>—</td><td>換資料即可</td><td>要重新訓練</td></tr>
+      <tr><td>能附來源</td><td>✗</td><td>✓</td><td>✗</td></tr>
+      <tr><td>最適合</td><td>先試試看</td><td>要最新、可查證</td><td>改變說話風格</td></tr>
+    </table>
+    <p>💡 <dfn>微調</dfn>＝用新資料再訓練模型。RAG 和微調<b>不互斥</b>，可以一起用！</p>
+  </div>
+  <div class="cite">Wiki：rag-vs-finetuning｜來源 <span class="src">S2</span><span class="src">S4</span><span class="src">S6</span></div>
+  <aside class="notes">RAG 的缺點是多了一個檢索步驟，延遲會比較高。</aside>
+</section>
+
+<!-- 14 實驗與限制 -->
+<section class="slide" data-type="content" data-wiki="limitations-and-when-not">
+  <div class="inner">
+    <h2>換掉資料庫，就能更新知識？</h2>
+    <div class="card blue">
+      <p>RAG 原始論文實驗：問 82 位在 2016–2018 年間換人的世界領袖「誰是某某職位？」</p>
+      <div class="grid2">
+        <div><p class="big" style="color:var(--green)">70% / 68%</p><p>索引年份對 → 答對</p></div>
+        <div><p class="big" style="color:var(--red)">12% / 4%</p><p>索引年份錯 → 幾乎答錯</p></div>
+      </div>
+    </div>
+    <h3>但 RAG 也有限制</h3>
+    <ul>
+      <li>找錯資料 → 就會答錯；找到資料也可能還是幻覺</li>
+      <li>模型不知道自己不知道</li>
+      <li>知識庫小於 20 萬 tokens（約 500 頁）時，直接整份放進提示就好</li>
+    </ul>
+  </div>
+  <div class="cite">Wiki：limitations-and-when-not｜來源 <span class="src">S1</span><span class="src">S3</span><span class="src">S5</span><span class="src">S6</span></div>
+  <aside class="notes">這頁同時講 RAG 的強項（更新知識不用重新訓練）和弱點。</aside>
+</section>
+
+<!-- 15 評估 -->
+<section class="slide" data-type="content" data-wiki="evaluation">
+  <div class="inner">
+    <h2>怎麼知道 RAG 做得好不好？</h2>
+    <div class="grid3">
+      <div class="card blue"><h3>上下文相關性</h3><p>找到的資料跟問題有關嗎？</p></div>
+      <div class="card warm"><h3>答案忠實度</h3><p>答案有忠於資料、沒亂編嗎？</p></div>
+      <div class="card green"><h3>答案相關性</h3><p>有直接回答問題嗎？</p></div>
+    </div>
+    <p>還要測 4 種能力：抗雜訊、<b>拒答</b>（沒資料就不要硬答）、資訊整合、反事實穩健性。</p>
+  </div>
+  <div class="cite">Wiki：evaluation｜來源 <span class="src">S6</span></div>
+  <aside class="notes">這份簡報本身也用了「答案忠實度」的概念：每頁內容都要能在 Wiki 找到出處。</aside>
+</section>
+
+<!-- 16 應用 -->
+<section class="slide" data-type="content" data-wiki="use-cases">
+  <div class="inner">
+    <h2>RAG 用在哪裡？</h2>
+    <div class="grid3">
+      <div class="card"><h3>👩‍💼 人資 / 客服</h3><p>查公司規定、內部客服機器人</p></div>
+      <div class="card"><h3>🏥 醫療</h3><p>連到醫學索引，協助醫師與護理師</p></div>
+      <div class="card"><h3>📈 金融</h3><p>連到市場資料的分析助理</p></div>
+    </div>
+    <p>共通點：需要「<b>最新</b>」、「<b>專屬</b>」、「<b>能查證</b>」的資訊。</p>
+  </div>
+  <div class="cite">Wiki：use-cases｜來源 <span class="src">S3</span><span class="src">S4</span></div>
+  <aside class="notes">可以問台下：你的科系有什麼資料適合做成 RAG？</aside>
+</section>
+
+<!-- 17 小測驗 -->
+<section class="slide" data-type="quiz" data-wiki="rag-definition,rag-pipeline,limitations-and-when-not">
+  <div class="inner quiz">
+    <h2>小測驗 ✍️（點按鈕看答案）</h2>
+    <div class="q"><p>Q1. RAG 的四個步驟依序是？</p><button>看答案</button><div class="ans">建索引 → 檢索 → 增強 → 生成</div></div>
+    <div class="q"><p>Q2. 公司規章改了，用 RAG 的聊天機器人需要重新訓練嗎？</p><button>看答案</button><div class="ans">不用，更新知識庫裡的文件就好</div></div>
+    <div class="q"><p>Q3. 一份很短的社團規章（遠小於 20 萬 tokens），一定要用 RAG 嗎？</p><button>看答案</button><div class="ans">不一定，知識庫很小時可以直接整份放進提示</div></div>
+  </div>
+  <div class="cite">Wiki：rag-definition、rag-pipeline、limitations-and-when-not｜來源 <span class="src">S1</span><span class="src">S5</span></div>
+  <aside class="notes">三題分別對應三個學習目標：說得出來、畫得出來、判斷得出來。</aside>
+</section>
+
+<!-- 18 總結 -->
+<section class="slide" data-type="summary" data-wiki="rag-definition,rag-pipeline,limitations-and-when-not">
+  <div class="inner">
+    <h2>總結：三句話帶走</h2>
+    <div class="card blue"><p>1️⃣ <b>RAG = 先查資料，再根據資料回答</b>，能減少幻覺、附上來源、不用重新訓練就能更新知識。</p></div>
+    <div class="card warm" style="margin-top:12px"><p>2️⃣ <b>四步驟：建索引 → 檢索 → 增強 → 生成</b>，其中「找得準不準」最關鍵。</p></div>
+    <div class="card green" style="margin-top:12px"><p>3️⃣ <b>RAG 不是萬靈丹</b>：找錯就答錯；知識庫很小時不一定需要。</p></div>
+  </div>
+  <div class="cite">Wiki：rag-definition、rag-pipeline、limitations-and-when-not｜來源 <span class="src">S1</span><span class="src">S2</span><span class="src">S6</span></div>
+  <aside class="notes">謝謝大家！</aside>
+</section>
+
+<!-- 19 參考資料 -->
+<section class="slide" data-type="refs" data-wiki="index">
+  <div class="inner">
+    <h2>參考資料</h2>
+    <ol class="small" style="font-size:15px;line-height:1.8">
+      <li>[S1] Lewis, P. et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS 2020. https://arxiv.org/abs/2005.11401</li>
+      <li>[S2] Amazon Web Services. What is RAG (Retrieval-Augmented Generation)? https://aws.amazon.com/what-is/retrieval-augmented-generation/</li>
+      <li>[S3] Martineau, K. (2023, Aug 22). What is retrieval-augmented generation (RAG)? IBM Research Blog. https://research.ibm.com/blog/retrieval-augmented-generation-RAG</li>
+      <li>[S4] Merritt, R. (2023/2025). What Is Retrieval-Augmented Generation, aka RAG? NVIDIA Blog. https://blogs.nvidia.com/blog/what-is-retrieval-augmented-generation/</li>
+      <li>[S5] Anthropic (2024, Sep 19). Introducing Contextual Retrieval. https://www.anthropic.com/engineering/contextual-retrieval</li>
+      <li>[S6] Gao, Y. et al. (2023/2024). Retrieval-Augmented Generation for Large Language Models: A Survey. arXiv:2312.10997</li>
+      <li>[S7] Microsoft Learn. RAG and Generative AI — Azure AI Search. https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</li>
+    </ol>
+    <p class="small">本簡報由我的 RAG LLM Wiki 產生，所有內容都可追溯到 Wiki 頁面與上述來源。</p>
+  </div>
+</section>
+
+</main>
+<nav class="bar">
+  <button id="prev" aria-label="上一頁">← 上一頁</button>
+  <span class="count" id="count">1 / 1</span>
+  <button id="next" aria-label="下一頁">下一頁 →</button>
+  <button id="notesBtn">講者備註 (N)</button>
+</nav>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle('active', k === i); });
+    document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('progress').style.width = ((i + 1) / slides.length * 100) + '%';
+    if (location.hash !== '#' + (i + 1)) history.replaceState(null, '', '#' + (i + 1));
+  }
+  document.getElementById('prev').onclick = function(){ show(i - 1); };
+  document.getElementById('next').onclick = function(){ show(i + 1); };
+  document.getElementById('notesBtn').onclick = function(){ document.body.classList.toggle('show-notes'); };
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+    if (e.key === 'n' || e.key === 'N') document.body.classList.toggle('show-notes');
+  });
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1)); x0 = null;
+  });
+  document.querySelectorAll('.quiz button').forEach(function(b){
+    b.onclick = function(){ b.parentNode.classList.toggle('show'); };
+  });
+  var start = parseInt((location.hash || '').slice(1), 10);
+  show(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>

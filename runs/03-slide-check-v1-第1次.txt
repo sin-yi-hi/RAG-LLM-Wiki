@@ -1,0 +1,28 @@
+== Slide Check：index.html，共 19 頁 ==
+ERROR   [第1頁/cover] 數字「15」在 Wiki 頁面 ['index', 'rag-definition'] 找不到 → 可能是 AI 自己加的
+ERROR   [第3頁/content] 出處列寫的 Wiki 頁面 ['iki', 'llm-limitations'] 和 data-wiki ['llm-limitations'] 不一致
+ERROR   [第4頁/content] 出處列寫的 Wiki 頁面 ['iki', 'llm-limitations'] 和 data-wiki ['llm-limitations'] 不一致
+ERROR   [第4頁/content] 術語「LLM」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第5頁/content] 出處列寫的 Wiki 頁面 ['analogies', 'iki'] 和 data-wiki ['analogies'] 不一致
+ERROR   [第6頁/content] 出處列寫的 Wiki 頁面 ['history-and-name', 'iki', 'rag-definition'] 和 data-wiki ['rag-definition', 'history-and-name'] 不一致
+ERROR   [第7頁/content] 出處列寫的 Wiki 頁面 ['iki', 'rag-pipeline'] 和 data-wiki ['rag-pipeline'] 不一致
+ERROR   [第7頁/content] 術語「提示」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第7頁/content] 術語「切片」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第7頁/content] 術語「向量」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第8頁/content] 出處列寫的 Wiki 頁面 ['chunking-and-embedding', 'iki'] 和 data-wiki ['chunking-and-embedding'] 不一致
+ERROR   [第8頁/content] 術語「token」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第9頁/content] 出處列寫的 Wiki 頁面 ['iki', 'retrieval-methods'] 和 data-wiki ['retrieval-methods'] 不一致
+ERROR   [第9頁/content] 術語「BM25」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第9頁/content] 術語「重新排序」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第10頁/content] 出處列寫的 Wiki 頁面 ['iki', 'rag-pipeline', 'use-cases'] 和 data-wiki ['rag-pipeline', 'use-cases'] 不一致
+ERROR   [第11頁/content] 出處列寫的 Wiki 頁面 ['contextual-retrieval', 'iki'] 和 data-wiki ['contextual-retrieval'] 不一致
+ERROR   [第12頁/content] 出處列寫的 Wiki 頁面 ['iki', 'rag-paradigms'] 和 data-wiki ['rag-paradigms'] 不一致
+ERROR   [第13頁/content] 出處列寫的 Wiki 頁面 ['iki', 'rag-vs-finetuning'] 和 data-wiki ['rag-vs-finetuning'] 不一致
+ERROR   [第13頁/content] 術語「微調」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第14頁/content] 出處列寫的 Wiki 頁面 ['iki', 'limitations-and-when-not'] 和 data-wiki ['limitations-and-when-not'] 不一致
+ERROR   [第15頁/content] 出處列寫的 Wiki 頁面 ['evaluation', 'iki'] 和 data-wiki ['evaluation'] 不一致
+ERROR   [第16頁/content] 出處列寫的 Wiki 頁面 ['iki', 'use-cases'] 和 data-wiki ['use-cases'] 不一致
+ERROR   [第17頁/quiz] 出處列寫的 Wiki 頁面 ['iki', 'limitations-and-when-not', 'rag-definition', 'rag-pipeline'] 和 data-wiki ['rag-definition', 'rag-pipeline', 'limitations-and-when-not'] 不一致
+ERROR   [第17頁/quiz] 數字「50」在 Wiki 頁面 ['rag-definition', 'rag-pipeline', 'limitations-and-when-not'] 找不到 → 可能是 AI 自己加的
+ERROR   [第18頁/summary] 出處列寫的 Wiki 頁面 ['iki', 'limitations-and-when-not', 'rag-definition', 'rag-pipeline'] 和 data-wiki ['rag-definition', 'rag-pipeline', 'limitations-and-when-not'] 不一致
+結果：26 個錯誤、0 個警告 → FAIL

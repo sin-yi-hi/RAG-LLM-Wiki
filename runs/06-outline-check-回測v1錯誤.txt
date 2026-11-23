@@ -1,0 +1,7 @@
+== Outline Check：共 19 頁、介紹 8 個術語 ==
+ERROR   [大綱第17頁] 數字「50」在 Wiki ['rag-definition', 'rag-pipeline', 'limitations-and-when-not'] 找不到
+ERROR   [術語] 「LLM」整份簡報都沒有介紹
+ERROR   [術語] 「提示」整份簡報都沒有介紹
+ERROR   [術語] 「切片」在第 7 頁就用到，但第 8 頁才介紹
+ERROR   [術語] 「向量」在第 7 頁就用到，但第 8 頁才介紹
+結果：5 個錯誤 → FAIL

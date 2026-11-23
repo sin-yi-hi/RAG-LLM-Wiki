@@ -1,0 +1,12 @@
+== Slide Check：index.html，共 19 頁 ==
+ERROR   [第1頁/cover] 數字「15」在 Wiki 頁面 ['index', 'rag-definition'] 找不到 → 可能是 AI 自己加的
+ERROR   [第4頁/content] 術語「LLM」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第7頁/content] 術語「提示」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第7頁/content] 術語「切片」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第7頁/content] 術語「向量」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第8頁/content] 術語「token」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第9頁/content] 術語「BM25」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第9頁/content] 術語「重新排序」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第13頁/content] 術語「微調」第一次出現，但沒有用 <dfn> 解釋
+ERROR   [第17頁/quiz] 數字「50」在 Wiki 頁面 ['rag-definition', 'rag-pipeline', 'limitations-and-when-not'] 找不到 → 可能是 AI 自己加的
+結果：10 個錯誤、0 個警告 → FAIL
